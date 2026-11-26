@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 — Les directives DSP et l'espace SEPA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16243B; --blue:#1F4E79; --blue-2:#2E75B6; --paper:#F5F2EB;
+    --card:#FFFFFF; --ink:#1d2733; --muted:#5d6b7a; --line:#e3ddd0; --gold:#B08D57;
+    --ok:#2F7A4F; --ok-bg:#EAF4ED; --ko:#B23B3B; --ko-bg:#FAEDED;
+    --amber:#B5852A; --amber-bg:#FBF1DC;
+    --shadow:0 1px 2px rgba(22,36,59,.05),0 8px 24px rgba(22,36,59,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Karla',-apple-system,system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:28px 20px 64px}
+  .card-main{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .header{background:var(--navy);color:#fff;padding:30px 34px}
+  .chapter-tag{display:inline-block;background:rgba(255,255,255,.14);color:#e9eef6;padding:5px 13px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+  .chapter-tag span{color:var(--gold)}
+  .header h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:clamp(23px,4.2vw,33px);line-height:1.14;letter-spacing:-.01em;margin-bottom:8px}
+  .header p{font-size:14px;color:#b9c4d4}
+  .gold-rule{height:3px;width:60px;background:var(--gold);border:0;margin:16px 0 0}
+  .body{padding:30px 34px}
+  .identity{text-align:center;padding:14px 0}
+  .identity h2{font-family:'Fraunces',serif;font-weight:600;font-size:21px;color:var(--navy);margin-bottom:8px}
+  .identity p.sub{color:var(--muted);margin-bottom:26px;font-size:14.5px}
+  .form-group{margin-bottom:16px;text-align:left;max-width:420px;margin-left:auto;margin-right:auto}
+  .form-group label{display:block;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;letter-spacing:.02em}
+  .form-group input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:9px;font-size:15px;font-family:'Karla',sans-serif;transition:border-color .2s;background:#fdfcf9}
+  .form-group input:focus{outline:none;border-color:var(--blue-2)}
+  .btn{cursor:pointer;font-family:'Karla',sans-serif;font-weight:700;font-size:15px;letter-spacing:.03em;border-radius:10px;transition:transform .12s,box-shadow .15s,filter .15s,background .15s}
+  .btn-primary{background:var(--blue);color:#fff;border:none;padding:13px 34px;margin:6px}
+  .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(31,78,121,.28)}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+  .btn-gold{background:var(--gold);color:var(--navy)}
+  .btn-gold:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-2px)}
+  .btn-secondary{background:#fff;color:var(--blue);border:1.5px solid var(--blue);padding:11px 28px;margin:6px}
+  .btn-secondary:hover:not(:disabled){background:#f0f4f9}
+  .btn-secondary:disabled{opacity:.4;cursor:not-allowed;border-color:#bbb;color:#bbb}
+  .stagiaire-bar{background:#efeadf;padding:11px 34px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .stagiaire-bar strong{color:var(--navy)}
+  .consigne{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13.5px;line-height:1.5;color:#3a4654}
+  .consigne b{color:var(--navy)}
+  .meta{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+  .progress{flex:1;min-width:180px}
+  .progress .track{height:8px;background:#e6e0d3;border-radius:99px;overflow:hidden}
+  .progress .fill{height:100%;width:0;background:var(--blue-2);border-radius:99px;transition:width .4s cubic-bezier(.2,.7,.2,1)}
+  .progress .plabel{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .scorepill{font-family:'Fraunces',serif;font-weight:600;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:99px;padding:7px 15px;font-size:14.5px}
+  .scorepill b{color:var(--blue);font-size:17px}
+  .cq{background:#fff;border:1px solid var(--line);border-radius:11px;padding:16px 18px;margin-bottom:13px;box-shadow:var(--shadow)}
+  .cq .ask{font-weight:600;font-size:15px;color:var(--ink);margin-bottom:10px;display:flex;gap:10px;align-items:flex-start}
+  .cq .ask .qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-family:'Fraunces',serif;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .theme-tag{display:inline-block;background:#eef3f9;color:var(--blue);font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px;margin-left:8px;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+  .multi-tag{display:inline-block;background:#fbf1dc;color:var(--amber);font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px;margin-left:6px;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+  select.cs{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14.5px;font-family:'Karla',sans-serif;background:#fdfcf9;color:var(--ink);cursor:pointer;transition:border-color .15s}
+  select.cs:focus{outline:none;border-color:var(--blue-2)}
+  select.cs:disabled{cursor:default;opacity:1}
+  select.cs.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+  select.cs.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+  .checks{display:flex;flex-direction:column;gap:8px}
+  .checks label{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:9px;padding:10px 13px;background:#fdfcf9;cursor:pointer;font-size:14.5px;transition:.15s}
+  .checks label:hover{border-color:var(--blue-2)}
+  .checks label.ok{border-color:var(--ok);background:var(--ok-bg)}
+  .checks label.ko{border-color:var(--ko);background:var(--ko-bg)}
+  .checks input{margin-top:3px}
+  .open-tag{display:inline-block;background:#eaf4ed;color:var(--ok);font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px;margin-left:6px;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+  textarea.oa{width:100%;min-height:96px;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14.5px;font-family:'Karla',sans-serif;background:#fdfcf9;color:var(--ink);resize:vertical;line-height:1.5}
+  textarea.oa:focus{outline:none;border-color:var(--blue-2)}
+  textarea.oa:disabled{cursor:default;opacity:1;background:#f7f5ef;border-color:var(--gold)}
+  .oa-hint{font-size:11.5px;color:var(--muted);margin-top:5px;font-style:italic}
+  .model{background:#f7f5ef;border:1px solid var(--gold);border-radius:9px;padding:13px 15px;margin-top:11px}
+  .model h5{margin:0 0 7px;font-family:'Fraunces',Georgia,serif;font-size:14px;color:var(--navy)}
+  .model p{margin:0 0 7px;font-size:13.5px;line-height:1.55}
+  .model ul{margin:6px 0 0;padding-left:17px;font-size:13px}
+  .model li{margin-bottom:3px}
+  .model .ref{color:var(--gold);font-weight:700;font-size:11.5px}
+  .model .note{font-size:12px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:7px;border-top:1px dashed var(--line)}
+  .pass-banner{border-radius:10px;padding:15px 18px;margin:14px 0 4px;font-size:14.5px;line-height:1.55}
+  .pass-banner.ok{background:var(--ok-bg);border:1.5px solid var(--ok);color:#1f5c39}
+  .pass-banner.ko{background:var(--amber-bg);border:1.5px solid var(--amber);color:#8a6420}
+  .pass-banner b{display:block;font-family:'Fraunces',Georgia,serif;font-size:16px;margin-bottom:5px}
+  .cfb{max-height:0;overflow:hidden;opacity:0;transition:max-height .4s,opacity .35s;font-size:13px;border-left:3px solid var(--line);padding-left:14px}
+  .cfb.show{max-height:320px;opacity:1;margin-top:12px}
+  .cfb.good{border-color:var(--ok);color:#1c5234} .cfb.bad{border-color:var(--ko);color:#7a2222}
+  .cfb .vd{font-weight:700}
+  .cfb .ref{display:inline-block;margin-top:6px;font-size:12px;color:var(--blue);background:#eef3f9;border-radius:6px;padding:2px 8px;font-weight:600}
+  .actions{margin-top:24px;text-align:center}
+  .result-screen{text-align:center;padding:20px 0}
+  .score-circle{width:132px;height:132px;border-radius:50%;margin:0 auto 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 24px rgba(22,36,59,.18)}
+  .score-circle.excellent{background:var(--ok)} .score-circle.good{background:var(--blue)}
+  .score-circle.average{background:var(--amber)} .score-circle.poor{background:var(--ko)}
+  .score-circle .sv{font-family:'Fraunces',serif;font-size:30px;font-weight:600}
+  .score-circle .sl{font-size:12px;opacity:.95;margin-top:2px;letter-spacing:.05em}
+  .result-msg{font-family:'Fraunces',serif;font-size:21px;font-weight:600;margin-bottom:8px;color:var(--navy)}
+  .result-detail{color:var(--muted);font-size:14px;margin-bottom:20px;max-width:56ch;margin-left:auto;margin-right:auto}
+  .recap{text-align:left;max-width:600px;margin:0 auto 8px}
+  .recap h4{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--navy);margin-bottom:6px}
+  .recap-row{display:flex;align-items:center;gap:11px;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13.5px}
+  .recap-row .dot{flex:none;width:11px;height:11px;border-radius:50%}
+  .recap-row .lab{flex:1;color:var(--ink)}
+  .recap-row .sc{font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
+  .recap-row .hint{flex-basis:100%;font-size:12px;color:var(--blue);padding-left:22px}
+  .pdf-info{background:var(--amber-bg);border-left:4px solid var(--amber);padding:12px 16px;border-radius:8px;text-align:left;font-size:13px;color:#6d4c00;margin:18px 0}
+  .pdf-info strong{display:block;margin-bottom:4px}
+  .note{background:#eef3f9;border-left:4px solid var(--blue-2);padding:12px 16px;border-radius:8px;text-align:left;font-size:13px;color:var(--blue);margin:16px 0;line-height:1.5}
+  footer{margin-top:26px;text-align:center;font-size:12px;color:#9a9384;letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card-main">
+    <div class="header">
+      <div class="chapter-tag">TMK Performances · IOBSP Niveau 2 — Bloc 2 <span>/</span> Journée 2 — Les services de paiement</div>
+      <h1>Module 2 — Les directives DSP et l'espace SEPA</h1>
+      <p>11 questions à choix + 8 questions ouvertes · module d'une heure</p>
+      <hr class="gold-rule">
+    </div>
+
+    <div id="screen-identity" class="body">
+      <div class="identity">
+        <h2>Avant de commencer</h2>
+        <p class="sub">Renseignez vos informations pour personnaliser votre attestation de réussite.</p>
+        <div class="form-group"><label for="nom">Nom</label><input type="text" id="nom" placeholder="Votre nom de famille" autocomplete="family-name"></div>
+        <div class="form-group"><label for="prenom">Prénom</label><input type="text" id="prenom" placeholder="Votre prénom" autocomplete="given-name"></div>
+        <button class="btn btn-primary" id="btn-start" disabled onclick="startQuiz()">Commencer l'évaluation</button>
+      </div>
+    </div>
+
+    <div id="screen-quiz" style="display:none;">
+      <div class="stagiaire-bar"><span>Stagiaire&nbsp;: <strong id="stagiaire-name"></strong></span><span id="date-quiz"></span></div>
+      <div class="body">
+        <div class="consigne"><b>🎯 Exercice du module 2.</b> Ces questions portent sur le cadre européen : ce que la DSP2 a changé, l'authentification forte, les frontières de l'espace SEPA, et les évolutions récentes. Attention aux dates et à l'état d'avancement des textes — c'est là que se logent les erreurs.<br><br><b>Deux parties, comme à l'examen.</b> D'abord les questions à choix, notées automatiquement. Puis les questions ouvertes : vous rédigez votre réponse, et la réponse attendue s'affiche après validation — à vous de confronter les deux. Elles ne sont pas notées : aucune correction automatique de texte libre ne serait fiable. Votre rédaction et la réponse attendue figurent l'une à côté de l'autre dans votre attestation PDF.<br><br><b>Une seule attestation par session</b> : elle est générée à la validation. Vous pouvez refaire l'exercice autant de fois que vous le souhaitez, mais aucun nouveau PDF ne sera produit.</div>
+        <div class="meta">
+          <div class="progress"><div class="track"><div class="fill" id="fill"></div></div><div class="plabel" id="plabel">0 / 19 répondu</div></div>
+          <div class="scorepill">Score&nbsp;: <b id="score">—</b> / 11</div>
+        </div>
+        <div id="qcm"></div>
+        <div class="actions"><button class="btn btn-primary" id="btn-validate" disabled onclick="validateQuiz()">Validation et génération du PDF</button></div>
+      </div>
+    </div>
+
+    <div id="screen-result" style="display:none;">
+      <div class="stagiaire-bar"><span>Stagiaire&nbsp;: <strong id="stagiaire-name-2"></strong></span><span id="date-quiz-2"></span></div>
+      <div class="body">
+        <div class="result-screen">
+          <div class="score-circle" id="score-circle"><div class="sv" id="score-value">0/11</div><div class="sl" id="score-label">questions</div></div>
+          <div class="result-msg" id="result-message"></div>
+          <div id="pass-banner" style="display:none;"></div>
+          <div class="result-detail" id="result-detail"></div>
+          <div class="recap" id="recap-block"><h4>Bilan par thème</h4><div id="recap-list"></div></div>
+          <div class="note" id="note-pdf" style="display:none;"></div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btn-restart" onclick="restartQuiz()">↻ Refaire l'évaluation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>TMK Performances · IOBSP Niveau 2 · Bloc 2 · J2 — Les services de paiement · Document pédagogique</footer>
+  </div>
+</div>
+
+<script>
+const CFG = {"THEME_INFO": {"A": {"label": "DSP1, DSP2, DSP3 : la trajectoire"}, "B": {"label": "Les apports de la DSP2"}, "C": {"label": "L'espace SEPA"}, "D": {"label": "Le règlement 2024/886"}}, "THEME_ORDER": ["A", "B", "C", "D"], "QUESTIONS": [{"th": "A", "kind": "qcm", "ask": "Quel texte constitue aujourd'hui le droit applicable en matière de services de paiement ?", "options": ["La DSP1, directive 2007/64/CE", "La DSP2, directive (UE) 2015/2366", "La DSP3 et le règlement PSR", "Le règlement SEPA 260/2012 uniquement"], "correct": [1], "multi": false, "expl": "La DSP2 a été transposée par l'ordonnance du 9 août 2017 et est applicable depuis le 13 janvier 2018. La DSP1 est abrogée. La DSP3 et le règlement PSR ont fait l'objet d'un accord politique provisoire en novembre 2025, mais ne sont pas encore applicables : leur application est attendue vers la fin de 2027.", "ref": "directive (UE) 2015/2366 · ordonnance du 9 août 2017"}, {"th": "A", "kind": "qcm", "ask": "Un article de presse annonce que « la DSP3 est entrée en vigueur ». Que faut-il en penser ?", "options": ["C'est exact : elle s'applique depuis 2026", "C'est inexact : le texte n'est pas encore applicable", "C'est exact pour les établissements, pas pour les intermédiaires", "C'est exact dans les États ayant transposé"], "correct": [1], "multi": false, "expl": "C'est une erreur très répandue, y compris sur des sites professionnels. Accord politique provisoire en novembre 2025, adoption formelle attendue en 2026, puis dix-huit mois de transposition : l'application est attendue vers la fin de 2027. Pour votre examen comme pour votre pratique, la DSP2 est le droit applicable.", "ref": "directive (UE) 2015/2366"}, {"th": "B", "kind": "qcm", "ask": "Quels services l'open banking issu de la DSP2 a-t-il créés ? (plusieurs réponses)", "options": ["Le service d'initiation de paiement", "Le service d'information sur les comptes", "Le service de transmission de fonds", "Le service de conservation de crypto-actifs"], "correct": [0, 1], "multi": true, "expl": "La DSP2 a créé l'initiation de paiement — un tiers déclenche un virement sans détenir les fonds — et l'information sur les comptes — un tiers agrège les données, sur consentement du client. La transmission de fonds existait déjà. Les crypto-actifs relèvent du règlement MiCA, régime totalement distinct.", "ref": "art. L. 314-1 II CMF"}, {"th": "B", "kind": "qcm", "ask": "Sur quoi repose l'authentification forte du client ?", "options": ["Sur un mot de passe d'au moins douze caractères", "Sur au moins deux éléments indépendants parmi connaissance, possession et inhérence", "Sur la validation systématique par SMS", "Sur la présentation d'une pièce d'identité"], "correct": [1], "multi": false, "expl": "L'authentification forte repose sur au moins deux éléments appartenant à des catégories différentes : la connaissance (ce que le client sait), la possession (ce qu'il détient) et l'inhérence (ce qu'il est). Les éléments doivent être indépendants : la compromission de l'un ne doit pas compromettre les autres.", "ref": "art. L. 133-44 CMF"}, {"th": "B", "kind": "qcm", "ask": "Un prestataire n'exige pas d'authentification forte, et une opération frauduleuse en résulte. Quelle est la conséquence ?", "options": ["Le payeur supporte la franchise de 50 €", "Le payeur ne supporte aucune perte, sauf agissement frauduleux de sa part", "La perte est partagée par moitié", "Le payeur supporte l'intégralité de la perte"], "correct": [1], "multi": false, "expl": "C'est une sanction redoutable pour le professionnel : lorsque le prestataire n'exige pas d'authentification forte, le payeur ne supporte aucune conséquence financière, sauf agissement frauduleux de sa part. La négligence grave du client devient elle-même inopérante.", "ref": "art. L. 133-19 V CMF"}, {"th": "B", "kind": "qcm", "ask": "De quel montant la DSP2 a-t-elle abaissé la franchise supportée par le payeur en cas de perte ou de vol ?", "options": ["De 150 € à 50 €", "De 100 € à 50 €", "De 50 € à 25 €", "De 250 € à 150 €"], "correct": [0], "multi": false, "expl": "La franchise était de 150 € sous la DSP1 ; elle est de 50 € depuis la DSP2. C'est un piège classique : de nombreux sites, y compris professionnels, citent encore 150 €. Vérifiez toujours la date de mise à jour de vos sources.", "ref": "art. L. 133-19 I CMF"}, {"th": "C", "kind": "qcm", "ask": "Quels États font partie de l'espace SEPA ? (plusieurs réponses)", "options": ["La Suisse", "Le Royaume-Uni", "Monaco", "Le Canada"], "correct": [0, 1, 2], "multi": true, "expl": "L'espace SEPA dépasse largement l'Union européenne : il comprend les 27 États membres, l'Islande, la Norvège et le Liechtenstein, mais aussi la Suisse, Andorre, Monaco, Saint-Marin, le Vatican et le Royaume-Uni — qui en fait toujours partie malgré le Brexit. Le Canada n'en fait évidemment pas partie.", "ref": "règlement (UE) 260/2012"}, {"th": "C", "kind": "qcm", "ask": "Quel est le délai maximal d'exécution d'un virement SEPA classique donné sur support papier ?", "options": ["Le jour même", "Un jour ouvrable", "Deux jours ouvrables", "Trois jours ouvrables"], "correct": [2], "multi": false, "expl": "Le virement SEPA classique s'exécute en un jour ouvrable au maximum à compter de la réception de l'ordre. Ce délai est porté à deux jours ouvrables lorsque l'ordre est donné sur support papier. Le virement instantané, lui, s'exécute en dix secondes.", "ref": "art. L. 133-13 CMF"}, {"th": "C", "kind": "qcm", "ask": "Un créancier refuse un IBAN espagnol au motif qu'il n'est pas français. Est-ce licite ?", "options": ["Oui : il est libre de choisir ses moyens de paiement", "Non : la discrimination par l'IBAN est interdite", "Oui, si le contrat le prévoit", "Non, sauf pour les prélèvements"], "correct": [1], "multi": false, "expl": "Le règlement SEPA interdit la discrimination par l'IBAN : un créancier ne peut refuser un IBAN d'un autre État de l'espace SEPA au motif qu'il n'est pas national. C'est une infraction encore fréquente, et sanctionnée.", "ref": "règlement (UE) 260/2012, art. 9"}, {"th": "D", "kind": "qcm", "ask": "Depuis quand le virement instantané ne peut-il plus être facturé plus cher qu'un virement classique ?", "options": ["Depuis le 13 mars 2024", "Depuis le 9 janvier 2025", "Depuis le 9 octobre 2025", "Depuis le 1er janvier 2026"], "correct": [1], "multi": false, "expl": "Le règlement (UE) 2024/886 du 13 mars 2024 — date d'adoption — impose depuis le 9 janvier 2025 que les frais du virement instantané n'excèdent pas ceux d'un virement classique. Toute banque proposant le virement classique doit par ailleurs proposer l'instantané. Ne confondez pas la date d'adoption du règlement et celle de son application.", "ref": "règlement (UE) 2024/886"}, {"th": "D", "kind": "qcm", "ask": "En quoi consiste la vérification du bénéficiaire (VoP), obligatoire depuis le 9 octobre 2025 ?", "options": ["La banque vérifie l'identité du payeur avant chaque virement", "La banque du payeur vérifie la concordance entre le nom du bénéficiaire et l'IBAN", "La banque vérifie la provision disponible", "La banque contrôle l'objet économique du virement"], "correct": [1], "multi": false, "expl": "Avant l'exécution de tout virement SEPA — classique ou instantané —, la banque du payeur interroge automatiquement celle du bénéficiaire pour vérifier la concordance entre le nom saisi et l'IBAN. Elle confirme, signale une correspondance approchante ou alerte. La vérification est gratuite et s'applique quel que soit le canal. C'est la meilleure arme contre la fraude au faux RIB.", "ref": "règlement (UE) 2024/886"}, {"th": "A", "kind": "open", "ask": "Retracez la trajectoire du droit européen des paiements, de la DSP1 au paquet DSP3 / PSR, en précisant l'état de chaque texte.", "model": "La DSP1, directive 2007/64/CE transposée par l'ordonnance du 15 juillet 2009, a créé le statut d'établissement de paiement et mis fin au monopole bancaire sur les paiements ; elle a harmonisé les délais d'exécution et les responsabilités. Elle est aujourd'hui abrogée. La DSP2, directive (UE) 2015/2366 transposée par l'ordonnance du 9 août 2017 et applicable depuis le 13 janvier 2018, a créé l'open banking — initiation de paiement et information sur les comptes —, imposé l'authentification forte, abaissé la franchise de 150 € à 50 € et renforcé la transparence. C'est le droit en vigueur. Le paquet DSP3 et règlement PSR, proposé en juin 2023, opère une refonte complète : la directive gouvernera les agréments et la supervision, le règlement — d'application directe — les règles de conduite. Un accord politique provisoire a été atteint en novembre 2025, l'adoption formelle est attendue en 2026 et l'application vers la fin de 2027. Il n'est donc pas applicable, et ne doit jamais être présenté comme du droit positif.", "points": ["DSP1 (2007/64/CE), ordonnance du 15 juillet 2009 : statut d'établissement de paiement — abrogée", "DSP2 (2015/2366), ordonnance du 9 août 2017, applicable au 13 janvier 2018 — EN VIGUEUR", "DSP2 : open banking, authentification forte, franchise à 50 €", "DSP3 + PSR : proposés en juin 2023, accord politique en novembre 2025", "Application attendue vers fin 2027 — non applicables à ce jour"], "expl": "", "ref": "directives 2007/64/CE et (UE) 2015/2366", "minlen": 40}, {"th": "B", "kind": "open", "ask": "Expliquez l'open banking : quels services, quel mécanisme, quelle obligation pour la banque teneuse de compte ?", "model": "L'open banking désigne l'ouverture du compte bancaire à des prestataires tiers, sur consentement exprès du client. Deux services ont été créés par la DSP2. Le service d'initiation de paiement permet à un tiers de déclencher un virement depuis le compte du client sans jamais détenir les fonds : c'est le mécanisme du paiement par virement proposé en ligne, alternative à la carte. Le service d'information sur les comptes permet à un tiers d'agréger les données de plusieurs comptes pour en restituer une vision consolidée ; il ne fait que lire, d'où un régime allégé — il est enregistré, non agréé. L'obligation pesant sur la banque teneuse de compte est essentielle : elle ne peut pas refuser l'accès à ces prestataires dès lors qu'ils sont régulièrement enregistrés et que le client a consenti, et elle doit mettre à disposition une interface dédiée. C'est précisément l'inégalité d'exécution de ces standards d'API d'un État à l'autre que la DSP3 entend corriger.", "points": ["Ouverture du compte à des tiers, sur consentement exprès du client", "Initiation de paiement : déclencher un virement sans détenir les fonds", "Information sur les comptes : agrégation, lecture seule, régime allégé (enregistrement)", "La banque ne peut refuser l'accès aux prestataires régulièrement enregistrés", "Obligation de mettre à disposition une interface dédiée", "La DSP3 vise à renforcer l'exécution de ces standards"], "expl": "", "ref": "art. L. 314-1 II et L. 133-39 CMF", "minlen": 40}, {"th": "B", "kind": "open", "ask": "Expliquez l'authentification forte : sur quoi repose-t-elle, quand s'impose-t-elle, et quelle est la sanction de son absence ?", "model": "L'authentification forte repose sur au moins deux éléments appartenant à des catégories différentes : la connaissance — ce que le client sait, un mot de passe, un code —, la possession — ce qu'il détient, un téléphone, une carte — et l'inhérence — ce qu'il est, une empreinte, un visage. Les éléments doivent être indépendants : la compromission de l'un ne doit pas compromettre les autres, ce qui explique l'abandon du code SMS lu sur le téléphone qui sert aussi à valider. Elle s'impose lorsque le payeur accède à son compte en ligne, initie une opération de paiement électronique, ou exécute une action à distance susceptible de comporter un risque de fraude. La sanction de son absence est double : lorsque le prestataire n'exige pas d'authentification forte, le payeur ne supporte aucune perte, sauf agissement frauduleux de sa part — la négligence grave devient inopérante ; et lorsque c'est le bénéficiaire ou son prestataire qui ne l'accepte pas, il rembourse le préjudice causé au prestataire du payeur.", "points": ["Deux éléments au moins parmi connaissance, possession, inhérence", "Indépendance : la compromission de l'un ne compromet pas les autres", "Accès au compte en ligne, initiation d'un paiement électronique, action à distance à risque", "Sans authentification forte : aucune perte pour le payeur, sauf fraude de sa part", "La négligence grave devient inopérante", "Le bénéficiaire qui refuse l'authentification forte rembourse le prestataire du payeur"], "expl": "", "ref": "art. L. 133-44 et L. 133-19 V CMF", "minlen": 40}, {"th": "C", "kind": "open", "ask": "Délimitez l'espace SEPA. Pourquoi faut-il le distinguer de l'Union européenne et de la zone euro ?", "model": "L'espace SEPA — Single Euro Payments Area — comprend les 27 États membres de l'Union, plus l'Islande, la Norvège et le Liechtenstein qui forment avec eux l'Espace économique européen, mais aussi la Suisse, Andorre, Monaco, Saint-Marin, le Vatican et le Royaume-Uni, qui en fait toujours partie malgré le Brexit. D'autres États l'ont rejoint récemment. Il faut distinguer trois périmètres, car chacun commande des règles différentes. L'espace SEPA détermine le champ des instruments SEPA et l'interdiction de discriminer par l'IBAN. L'Espace économique européen détermine le délai de contestation d'une opération non autorisée : treize mois dans l'EEE, soixante-dix jours en dehors, prolongeables contractuellement jusqu'à cent vingt. La zone euro, enfin, détermine l'application immédiate de certaines obligations, comme la vérification du bénéficiaire, entrée en vigueur le 9 octobre 2025 en zone euro et applicable au plus tard le 9 juillet 2027 pour les États de l'espace SEPA hors zone euro.", "points": ["27 États membres + Islande, Norvège, Liechtenstein (EEE)", "+ Suisse, Andorre, Monaco, Saint-Marin, Vatican, Royaume-Uni", "Trois périmètres distincts : SEPA, EEE, zone euro", "SEPA : instruments et interdiction de discriminer par l'IBAN", "EEE : délai de contestation de 13 mois, contre 70 jours hors EEE", "Zone euro : application immédiate de la VoP au 9 octobre 2025"], "expl": "", "ref": "règlement (UE) 260/2012 · art. L. 133-24 CMF", "minlen": 40}, {"th": "C", "kind": "open", "ask": "Présentez les quatre instruments de l'espace SEPA et ce qui distingue chacun.", "model": "Le SCT, SEPA Credit Transfer, est le virement classique : exécution en un jour ouvrable au maximum, deux jours ouvrables si l'ordre est donné sur support papier. Le SCT Inst, SEPA Instant Credit Transfer, est le virement instantané : les fonds sont à disposition du bénéficiaire en dix secondes au maximum, vingt-quatre heures sur vingt-quatre et tous les jours de l'année ; il est irrévocable une fois les fonds crédités, et sa gratuité relative est imposée depuis le 9 janvier 2025. Le SDD Core, SEPA Direct Debit Core, est le prélèvement destiné aux particuliers : il ouvre un droit au remboursement inconditionnel pendant huit semaines. Le SDD B2B est le prélèvement entre professionnels : le débiteur professionnel renonce à ce droit au remboursement, et sa banque vérifie le mandat avant tout débit. Un consommateur ne peut donc pas être débiteur dans un schéma B2B.", "points": ["SCT : virement classique, un jour ouvrable, deux sur papier", "SCT Inst : dix secondes, 24h/24, irrévocable, gratuité relative depuis le 9 janvier 2025", "SDD Core : particuliers, remboursement inconditionnel pendant 8 semaines", "SDD B2B : entre professionnels, pas de remboursement, mandat vérifié par la banque", "Un consommateur ne peut être débiteur en SDD B2B"], "expl": "", "ref": "règlement (UE) 260/2012 · règlement (UE) 2024/886", "minlen": 40}, {"th": "D", "kind": "open", "ask": "Exposez les deux apports du règlement (UE) 2024/886 et leurs dates d'application respectives.", "model": "Le premier apport est la gratuité relative du virement instantané, applicable depuis le 9 janvier 2025 : les frais facturés pour l'envoi et la réception d'un virement instantané ne peuvent pas excéder ceux facturés pour un virement classique, et toute banque qui propose le virement classique doit également proposer l'instantané. Le second est la vérification du bénéficiaire, la VoP, applicable depuis le 9 octobre 2025 en zone euro : avant l'exécution de tout virement SEPA, classique ou instantané, la banque du payeur interroge automatiquement celle du bénéficiaire pour vérifier la concordance entre le nom saisi et l'IBAN, et confirme, signale une correspondance approchante ou alerte. Elle est gratuite et s'applique quel que soit le canal — application mobile, automate, espace client, guichet. Les États de l'espace SEPA situés hors zone euro devront l'appliquer au plus tard le 9 juillet 2027. Attention à ne pas confondre la date d'adoption du règlement, le 13 mars 2024, avec ces dates d'application.", "points": ["Gratuité relative de l'instantané depuis le 9 janvier 2025", "Obligation de proposer l'instantané si l'on propose le classique", "VoP depuis le 9 octobre 2025 en zone euro", "Vérification nom / IBAN avant exécution, gratuite, tous canaux", "Hors zone euro : au plus tard le 9 juillet 2027", "Ne pas confondre adoption (13 mars 2024) et application"], "expl": "", "ref": "règlement (UE) 2024/886", "minlen": 40}, {"th": "D", "kind": "open", "ask": "Quelles conséquences pratiques la vérification du bénéficiaire a-t-elle au comptoir, et quel risque de fraude vise-t-elle ?", "model": "La conséquence immédiate est que le client ne peut plus enregistrer un bénéficiaire sous un libellé approximatif : il doit saisir le nom et le prénom exacts pour une personne physique, la dénomination sociale exacte pour une personne morale. Les intitulés du type « Maman » ou « Compta fournisseur » ne passent plus. C'est une gêne réelle, et il faut savoir l'expliquer plutôt que la subir. Le risque visé est la fraude au faux RIB : elle consiste précisément à substituer un IBAN frauduleux sous un nom légitime — celui d'un fournisseur, d'un notaire, d'un artisan —, de sorte que le payeur croit virer à la bonne personne. Jusqu'à la VoP, rien ne vérifiait la concordance : seul l'IBAN comptait pour l'exécution. Désormais, la banque du payeur alerte en cas de discordance. La protection n'est pas absolue — le client peut passer outre l'alerte — mais elle déplace la charge de la vigilance au bon moment, avant l'exécution.", "points": ["Nom et prénom exacts, ou dénomination sociale exacte", "Les libellés approximatifs ne passent plus", "Fraude visée : le faux RIB, IBAN frauduleux sous un nom légitime", "Avant la VoP, seul l'IBAN comptait pour l'exécution", "La banque alerte en cas de discordance, avant l'exécution", "Protection non absolue : le client peut passer outre"], "expl": "", "ref": "règlement (UE) 2024/886", "minlen": 40}, {"th": "A", "kind": "open", "ask": "Que prévoit le paquet DSP3 / PSR ? Citez trois changements attendus, en précisant la formulation prudente à employer.", "model": "Le paquet remplacera la DSP2 et la directive monnaie électronique par deux textes : la DSP3, directive gouvernant les agréments, la supervision prudentielle et les licences, et le règlement PSR, d'application directe, gouvernant les règles de conduite — authentification forte, transparence, standards d'open banking, responsabilité en cas de fraude. Cette architecture vise à supprimer les divergences nationales nées de la transposition. Trois changements méritent d'être connus : la fusion des statuts, les établissements de monnaie électronique devenant une sous-catégorie d'établissements de paiement soumise à un nouvel agrément ; la généralisation de la vérification IBAN/nom à l'ensemble des virements ; et l'extension de la responsabilité, la fraude par manipulation du payeur devant être traitée comme une opération non autorisée, donc remboursée. La formulation prudente est celle-ci : « accord politique provisoire en novembre 2025, adoption formelle attendue en 2026, application attendue vers la fin de 2027 ». On ne va pas plus loin sur un texte non publié.", "points": ["DSP3 : agréments, supervision, licences — directive", "PSR : règles de conduite — règlement d'application directe", "Objectif : supprimer les divergences nationales de transposition", "Fusion des statuts établissement de paiement / monnaie électronique", "Vérification IBAN/nom généralisée", "Fraude par manipulation traitée comme opération non autorisée", "Formulation prudente : accord politique nov. 2025, application attendue fin 2027"], "expl": "", "ref": "proposition de la Commission européenne, juin 2023", "minlen": 40}], "HAS_THEMES": true, "PASS": null, "PASS_OK": "", "PASS_KO": "", "PDF": {"header": "TMK PERFORMANCES · IOBSP NIVEAU 2 — BLOC 2 · J2 — LES SERVICES DE PAIEMENT", "att_title": "Attestation — Module 2", "att_sub": "Les directives DSP et l'espace SEPA", "footer": "TMK Performances - N° Siret : 49841924100027 - Code NAF : 8559A", "fname": "Attestation_J2_M2"}};
+const THEME_INFO = CFG.THEME_INFO, THEME_ORDER = CFG.THEME_ORDER;
+const QUESTIONS = CFG.QUESTIONS, TOTAL = QUESTIONS.length, HAS_THEMES = CFG.HAS_THEMES;
+const IS_OPEN = (c)=>c.kind==="open";
+const QCM_N = QUESTIONS.filter(c=>!IS_OPEN(c)).length;
+const OPEN_N = TOTAL - QCM_N;
+const PASS = CFG.PASS, PASS_OK = CFG.PASS_OK, PASS_KO = CFG.PASS_KO;
+const PDF = CFG.PDF;
+
+const state = { nom:"", prenom:"", answers:{}, validated:false, score:0, pdfGenerated:false, dateQuiz:null };
+
+document.getElementById("nom").addEventListener("input", checkIdentity);
+document.getElementById("prenom").addEventListener("input", checkIdentity);
+function checkIdentity(){const n=document.getElementById("nom").value.trim(),p=document.getElementById("prenom").value.trim();document.getElementById("btn-start").disabled=!(n&&p);}
+
+function startQuiz(){
+  state.nom=document.getElementById("nom").value.trim().toUpperCase();
+  let p=document.getElementById("prenom").value.trim();
+  state.prenom=p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();
+  state.dateQuiz=new Date();
+  const full=state.prenom+" "+state.nom;
+  document.getElementById("stagiaire-name").textContent=full;
+  document.getElementById("stagiaire-name-2").textContent=full;
+  const d=state.dateQuiz.toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+  document.getElementById("date-quiz").textContent=d; document.getElementById("date-quiz-2").textContent=d;
+  document.getElementById("screen-identity").style.display="none";
+  document.getElementById("screen-quiz").style.display="block";
+  if(!HAS_THEMES) document.getElementById("recap-block").style.display="none";
+  render();
+}
+
+function themeTag(c){
+  if(!c.th || !THEME_INFO[c.th]) return "";
+  return `<span class="theme-tag">${c.th} · ${THEME_INFO[c.th].label}</span>`;
+}
+
+function render(){
+  const qcm=document.getElementById("qcm"); qcm.innerHTML="";
+  QUESTIONS.forEach((c,i)=>{
+    const tag=themeTag(c);
+    let control;
+    if(IS_OPEN(c)){
+      const prev=state.answers[i]||"";
+      control=`<div class="open-tag">Question ouverte</div><textarea class="oa" data-q="${i}" rows="4" placeholder="Rédigez votre réponse, comme à l'examen — en phrases complètes.">${prev}</textarea><div class="oa-hint">Réponse attendue : ${c.minlen} caractères minimum. La réponse attendue s'affichera après validation : c'est à vous de confronter la vôtre.</div>`;
+    } else if(c.multi){
+      let boxes="";
+      c.options.forEach((o,oi)=>{boxes+=`<label data-opt="${oi}"><input type="checkbox" data-q="${i}" value="${oi}"><span>${o}</span></label>`;});
+      control=`<div class="multi-tag">Plusieurs réponses</div><div class="checks" data-q="${i}">${boxes}</div>`;
+    } else {
+      let opts='<option value="">— choisir une réponse —</option>';
+      c.options.forEach((o,oi)=>opts+=`<option value="${oi}">${o}</option>`);
+      control=`<select class="cs" data-q="${i}">${opts}</select>`;
+    }
+    qcm.innerHTML+=`<div class="cq"><div class="ask"><span class="qn">${i+1}</span><span>${c.ask}${tag}</span></div>${control}<div class="cfb" id="cfb-${i}"></div></div>`;
+  });
+  document.querySelectorAll("select.cs").forEach(s=>s.addEventListener("change",onSelect));
+  document.querySelectorAll(".checks input").forEach(s=>s.addEventListener("change",onCheck));
+  document.querySelectorAll("textarea.oa").forEach(s=>s.addEventListener("input",onOpen));
+  update();
+}
+
+function onSelect(e){ if(state.validated)return; const i=+e.currentTarget.dataset.q,v=e.currentTarget.value; if(v==="") delete state.answers[i]; else state.answers[i]=+v; update(); }
+function onCheck(e){
+  if(state.validated)return; const i=+e.currentTarget.dataset.q;
+  const checked=[...document.querySelectorAll(`.checks input[data-q="${i}"]:checked`)].map(x=>+x.value);
+  if(checked.length===0) delete state.answers[i]; else state.answers[i]=checked.sort((a,b)=>a-b);
+  update();
+}
+
+function onOpen(e){
+  if(state.validated)return; const i=+e.currentTarget.dataset.q, v=e.currentTarget.value.trim();
+  if(v.length < QUESTIONS[i].minlen) delete state.answers[i]; else state.answers[i]=e.currentTarget.value.trim();
+  update();
+}
+
+function update(){
+  const n=Object.keys(state.answers).length;
+  document.getElementById("fill").style.width=(n/TOTAL*100)+"%";
+  document.getElementById("plabel").textContent=n+" / "+TOTAL+" répondu"+(n>1?"es":"");
+  document.getElementById("btn-validate").disabled=(n!==TOTAL);
+}
+
+function isCorrect(c, ans){
+  if(IS_OPEN(c)) return null;          // non notée automatiquement
+  if(ans==null) return false;
+  if(c.multi){
+    const a=[...ans].sort((x,y)=>x-y).join(","), g=[...c.correct].sort((x,y)=>x-y).join(",");
+    return a===g;
+  }
+  return ans===c.correct[0];
+}
+function answerLabel(c, ans){
+  if(ans==null) return "—";
+  if(c.multi) return ans.map(i=>c.options[i]).join(" ; ");
+  return c.options[ans];
+}
+function correctLabel(c){
+  return c.correct.map(i=>c.options[i]).join(" ; ");
+}
+
+function themeStats(){
+  const st={}; THEME_ORDER.forEach(t=>st[t]={ok:0,total:0});
+  QUESTIONS.forEach((c,i)=>{ if(IS_OPEN(c)||!st[c.th])return; st[c.th].total++; if(isCorrect(c,state.answers[i])) st[c.th].ok++; });
+  return st;
+}
+
+function validateQuiz(){
+  if(state.validated)return; state.validated=true;
+  let score=0;
+  QUESTIONS.forEach((c,i)=>{
+    const ans=state.answers[i], ok=isCorrect(c,ans); if(ok)score++;
+    if(IS_OPEN(c)){
+      const ta=document.querySelector(`textarea.oa[data-q="${i}"]`); ta.disabled=true;
+      const pts=(c.points&&c.points.length)?`<ul>${c.points.map(x=>`<li>${x}</li>`).join("")}</ul>`:"";
+      const rf=c.ref?`<p class="ref">${c.ref}</p>`:"";
+      const f0=document.getElementById("cfb-"+i);
+      f0.className="cfb good";
+      f0.innerHTML=`<div class="model"><h5>La réponse attendue</h5><p>${c.model}</p>${pts}${rf}<p class="note">Cette question n'est pas notée automatiquement : confrontez votre rédaction à la réponse attendue. Votre texte et la réponse attendue figurent tous deux dans votre attestation PDF.</p></div>`;
+      requestAnimationFrame(()=>f0.classList.add("show"));
+      return;
+    }
+    if(c.multi){
+      const cont=document.querySelector(`.checks[data-q="${i}"]`);
+      cont.querySelectorAll("input").forEach(x=>x.disabled=true);
+      c.correct.forEach(g=>cont.querySelector(`label[data-opt="${g}"]`).classList.add("ok"));
+      (ans||[]).forEach(a=>{ if(!c.correct.includes(a)) cont.querySelector(`label[data-opt="${a}"]`).classList.add("ko"); });
+    } else {
+      const sel=document.querySelector(`select.cs[data-q="${i}"]`); sel.disabled=true;
+      sel.classList.add(ok?"ok":"ko");
+    }
+    const f=document.getElementById("cfb-"+i);
+    f.className="cfb "+(ok?"good":"bad");
+    const vd=ok?"Exact.":((c.multi?"Bonnes réponses : ":"Bonne réponse : ")+correctLabel(c)+".");
+    const refLine=c.ref?`<br><span class="ref">${c.ref}</span>`:"";
+    f.innerHTML=`<span class="vd">${vd}</span> ${c.expl}${refLine}`;
+    requestAnimationFrame(()=>f.classList.add("show"));
+  });
+  state.score=score;
+  document.getElementById("score").textContent=score;
+  document.getElementById("btn-validate").disabled=true;
+  generatePDF();
+  showResults();
+}
+
+function showResults(){
+  const pct=Math.round(state.score/QCM_N*100);
+  document.getElementById("screen-result").style.display="block";
+  document.getElementById("score-value").textContent=state.score+"/"+QCM_N;
+  const sl=document.getElementById("score-label"); if(sl) sl.textContent = OPEN_N ? "questions à choix" : "questions";
+  const c=document.getElementById("score-circle"),m=document.getElementById("result-message"),d=document.getElementById("result-detail");
+  const suffix = OPEN_N ? " Vos "+OPEN_N+" question"+(OPEN_N>1?"s":"")+" ouverte"+(OPEN_N>1?"s ne sont":" n'est")+" pas notée"+(OPEN_N>1?"s":"")+" : confrontez votre rédaction à la réponse attendue, affichée sous chacune." : "";
+  c.className="score-circle";
+  if(PASS){
+    const ok = pct>=PASS;
+    c.classList.add(ok?(pct>=90?"excellent":"good"):(pct>=50?"average":"poor"));
+    m.textContent = ok ? "Objectif atteint" : "Objectif non atteint";
+    d.textContent = (ok?"Vous êtes au-dessus du seuil de "+PASS+" %.":"Vous êtes en dessous du seuil de "+PASS+" %.")+suffix;
+    const b=document.getElementById("pass-banner");
+    b.className="pass-banner "+(ok?"ok":"ko");
+    b.innerHTML = ok
+      ? `<b>Réussite — ${pct} % de bonnes réponses</b>${PASS_OK||"Vous avez atteint le seuil de "+PASS+" %. Les acquis de la journée sont consolidés : vous pouvez aborder la suite du parcours."}`
+      : `<b>Seuil non atteint — ${pct} % de bonnes réponses</b>${PASS_KO||"Le seuil de réussite est fixé à "+PASS+" %. Reprenez les fiches mémo et les séquences des thèmes en rouge, puis <strong>refaites ce QCM afin de vous entraîner</strong> : c'est en le repassant que les automatismes s'installent."}`;
+    b.style.display="block";
+  }
+  else if(pct>=90){c.classList.add("excellent");m.textContent="Évaluation validée — Excellent !";d.textContent="Vous maîtrisez l'ensemble des notions du module."+suffix;}
+  else if(pct>=70){c.classList.add("good");m.textContent="Évaluation validée";d.textContent="Bon niveau global. Le détail commenté de vos réponses figure ci-dessus."+suffix;}
+  else if(pct>=50){c.classList.add("average");m.textContent="Presque — à consolider";d.textContent="Acquis partiels. Le détail commenté de chaque réponse figure ci-dessus."+suffix;}
+  else{c.classList.add("poor");m.textContent="À retravailler";d.textContent="Le détail commenté reprend la bonne réponse et l'explication de chaque question."+suffix;}
+
+  if(HAS_THEMES){
+    const st=themeStats(); let html="";
+    THEME_ORDER.forEach(t=>{
+      const s=st[t]; if(!s||s.total===0) return;
+      const full=(s.ok===s.total);
+      const color=full?"var(--ok)":(s.ok===0?"var(--ko)":"var(--amber)");
+      html+=`<div class="recap-row"><span class="dot" style="background:${color}"></span><span class="lab">${t} · ${THEME_INFO[t].label}</span><span class="sc">${s.ok} / ${s.total}</span></div>`;
+    });
+    document.getElementById("recap-list").innerHTML=html;
+  }
+  const np=document.getElementById("note-pdf");
+  if(state.pdfGenerated){np.textContent="✓ Votre attestation PDF a été générée et téléchargée pour cette session. Vous pouvez refaire l'évaluation, mais aucun nouveau PDF ne sera généré.";np.style.display="block";}
+  document.getElementById("screen-result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function restartQuiz(){
+  state.answers={};state.validated=false;state.score=0;state.dateQuiz=new Date();
+  const d=state.dateQuiz.toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+  document.getElementById("date-quiz").textContent=d;document.getElementById("date-quiz-2").textContent=d;
+  document.getElementById("score").textContent="—";
+  const bv=document.getElementById("btn-validate");
+  if(state.pdfGenerated) bv.textContent="Valider l'évaluation";
+  document.getElementById("note-pdf").style.display="none";
+  const pb=document.getElementById("pass-banner"); if(pb) pb.style.display="none";
+  document.getElementById("screen-result").style.display="none";
+  render(); window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ───────── PDF (attestation) ───────── */
+function generatePDF(){
+  if(state.pdfGenerated)return;
+  if(!window.jspdf||!window.jspdf.jsPDF){return;}
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  const pageW=doc.internal.pageSize.getWidth(), pageH=doc.internal.pageSize.getHeight();
+  const margin=18; let y=0;
+  const NAVY=[22,36,59],BLUE=[31,78,121],OKC=[47,122,79],KOC=[178,59,59],AMB=[181,133,42];
+  const footer=()=>{const tp=doc.internal.getNumberOfPages();for(let i=1;i<=tp;i++){doc.setPage(i);doc.setFont("helvetica","italic");doc.setFontSize(8);doc.setTextColor(150,150,150);doc.text(`Page ${i} / ${tp}  —  ${PDF.footer}`,pageW/2,pageH-8,{align:"center"});}};
+  const ensure=(h)=>{if(y+h>pageH-18){doc.addPage();y=margin;}};
+
+  doc.setFillColor(...NAVY);doc.rect(0,0,pageW,38,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(9);
+  doc.text(PDF.header,margin,13);
+  doc.setFontSize(15);doc.text(PDF.att_title,margin,24);
+  doc.setFont("helvetica","normal");doc.setFontSize(10);
+  doc.text(PDF.att_sub,margin,32);
+  y=50;
+
+  doc.setFillColor(239,234,223);doc.rect(margin,y,pageW-2*margin,26,"F");
+  doc.setTextColor(...BLUE);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Stagiaire",margin+4,y+7);
+  doc.setFont("helvetica","normal");doc.setTextColor(40,40,40);doc.setFontSize(12);doc.text(`${state.prenom} ${state.nom}`,margin+4,y+15);
+  doc.setFontSize(9);doc.setTextColor(100,100,100);
+  const dS=state.dateQuiz.toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
+  const tS=state.dateQuiz.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  doc.text(`Évaluation réalisée le ${dS} à ${tS}`,margin+4,y+22);
+  y+=36;
+
+  const pct=Math.round(state.score/QCM_N*100);
+  let col=KOC,lab="À retravailler";
+  if(PASS){ const ok=pct>=PASS; col=ok?OKC:AMB; lab=ok?"Réussite":"Seuil non atteint"; }
+  else if(pct>=90){col=OKC;lab="Excellent";}else if(pct>=70){col=BLUE;lab="Validé";}else if(pct>=50){col=AMB;lab="À consolider";}
+  doc.setFillColor(...col);doc.rect(margin,y,pageW-2*margin,28,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(22);doc.text(`${state.score} / ${QCM_N}`,margin+6,y+13);
+  doc.setFontSize(11);doc.text(`(${pct}%)  —  questions à choix`,margin+6,y+22);
+  doc.setFontSize(13);doc.text(lab,pageW-margin-6,y+17,{align:"right"});
+  y+=34;
+
+  if(PASS){
+    const ok=pct>=PASS;
+    const msg = ok ? `Seuil de reussite : ${PASS} %. Objectif atteint.`
+                   : `Seuil de reussite : ${PASS} %. Objectif non atteint : refaites ce QCM afin de vous entrainer.`;
+    doc.setFont("helvetica","italic");doc.setFontSize(9);doc.setTextColor(...(ok?OKC:AMB));
+    doc.text(msg,margin,y+2); y+=8;
+  }
+  if(OPEN_N){
+    doc.setFont("helvetica","italic");doc.setFontSize(8.5);doc.setTextColor(120,120,120);
+    doc.text(`${OPEN_N} question(s) ouverte(s) : non notees automatiquement — voir la section dediee en fin de document.`,margin,y+2);
+    y+=8;
+  }
+  y+=2;
+
+  if(HAS_THEMES){
+    const st=themeStats();
+    doc.setFillColor(...NAVY);doc.rect(margin,y,pageW-2*margin,9,"F");
+    doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Bilan par thème",margin+4,y+6.2);y+=12;
+    THEME_ORDER.forEach(t=>{
+      const s=st[t]; if(!s||s.total===0) return;
+      const full=(s.ok===s.total); const cc=full?OKC:(s.ok===0?KOC:AMB);
+      ensure(7);
+      doc.setFillColor(...cc);doc.circle(margin+3,y-0.5,1.4,"F");
+      doc.setFont("helvetica","normal");doc.setFontSize(9.5);doc.setTextColor(55,55,55);
+      doc.text(`${t} · ${THEME_INFO[t].label}`,margin+8,y);
+      doc.setFont("helvetica","bold");doc.text(`${s.ok} / ${s.total}`,margin+92,y);
+      y+=6.5;
+    });
+    y+=4;
+  }
+
+  doc.setFillColor(...NAVY);doc.rect(margin,y,pageW-2*margin,9,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Détail des réponses",margin+4,y+6.2);
+  doc.setFontSize(9);doc.text(`${QCM_N} question${QCM_N>1?"s":""} à choix`,pageW-margin-4,y+6.2,{align:"right"});y+=12;
+
+  QUESTIONS.forEach((c,i)=>{
+    if(IS_OPEN(c)) return;
+    const ans=state.answers[i], ok=isCorrect(c,ans);
+    const head=(c.th?`[${c.th}] `:"")+c.ask;
+    const qLines=doc.splitTextToSize(`${i+1}. ${head}`,pageW-2*margin-16);
+    const yLines=doc.splitTextToSize(`Votre réponse : ${answerLabel(c,ans)}`,pageW-2*margin-10);
+    const gLines=doc.splitTextToSize(`${c.multi?"Bonnes réponses":"Bonne réponse"} : ${correctLabel(c)}`,pageW-2*margin-10);
+    const eLines=doc.splitTextToSize(c.expl+(c.ref?"  ("+c.ref+")":""),pageW-2*margin-10);
+    const h=6+qLines.length*4+4+yLines.length*4+gLines.length*4+4+eLines.length*4+6;
+    ensure(h);
+    doc.setFillColor(ok?OKC[0]:KOC[0],ok?OKC[1]:KOC[1],ok?OKC[2]:KOC[2]);doc.rect(margin,y,2,h-3,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.setTextColor(ok?OKC[0]:KOC[0],ok?OKC[1]:KOC[1],ok?OKC[2]:KOC[2]);doc.text(ok?"[OK]":"[X]",margin+5,y+5);
+    doc.setTextColor(55,55,55);doc.text(qLines,margin+16,y+5);
+    let yy=y+5+qLines.length*4+2;
+    doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.setTextColor(100,100,100);doc.text(yLines,margin+5,yy);yy+=yLines.length*4;
+    doc.setTextColor(40,100,60);doc.text(gLines,margin+5,yy);yy+=gLines.length*4+1;
+    doc.setFont("helvetica","italic");doc.setFontSize(8.5);doc.setTextColor(90,90,90);doc.text(eLines,margin+5,yy);
+    y+=h;
+  });
+
+  if(OPEN_N){
+    ensure(20);
+    doc.setFillColor(...NAVY);doc.rect(margin,y,pageW-2*margin,9,"F");
+    doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Questions ouvertes — votre rédaction et la réponse attendue",margin+4,y+6.2);
+    doc.setFontSize(9);doc.text(`${OPEN_N} question${OPEN_N>1?"s":""}`,pageW-margin-4,y+6.2,{align:"right"});y+=12;
+    doc.setFont("helvetica","italic");doc.setFontSize(8.5);doc.setTextColor(120,120,120);
+    const iL=doc.splitTextToSize("Ces questions ne sont pas notees automatiquement : aucune correction de texte libre ne serait fiable. Confrontez votre redaction a la reponse attendue, et sollicitez votre referent pedagogique en cas de doute.",pageW-2*margin);
+    doc.text(iL,margin,y); y+=iL.length*4+4;
+
+    let n=0;
+    QUESTIONS.forEach((c,i)=>{
+      if(!IS_OPEN(c)) return; n++;
+      const mine=(state.answers[i]||"— non renseignée —");
+      const qLines=doc.splitTextToSize(`${n}. ${(c.th?`[${c.th}] `:"")+c.ask}`,pageW-2*margin-10);
+      const aLines=doc.splitTextToSize(mine,pageW-2*margin-14);
+      const mLines=doc.splitTextToSize(c.model,pageW-2*margin-14);
+      const pLines=(c.points||[]).map(x=>doc.splitTextToSize("- "+x,pageW-2*margin-16)).flat();
+      const h=6+qLines.length*4+6+aLines.length*4+6+mLines.length*4+pLines.length*4+(c.ref?5:0)+8;
+      ensure(Math.min(h,pageH-2*margin));
+      doc.setFillColor(...BLUE);doc.rect(margin,y,2,Math.min(h-3,pageH-y-20),"F");
+      doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.setTextColor(55,55,55);
+      doc.text(qLines,margin+6,y+5); let yy=y+5+qLines.length*4+3;
+      doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.setTextColor(100,100,100);doc.text("Votre reponse :",margin+6,yy);yy+=4;
+      doc.setFont("helvetica","normal");doc.setTextColor(60,60,60);
+      aLines.forEach(l=>{ensure(5);doc.text(l,margin+10,yy);yy+=4;});
+      yy+=3;
+      doc.setFont("helvetica","bold");doc.setTextColor(40,100,60);ensure(5);doc.text("Reponse attendue :",margin+6,yy);yy+=4;
+      doc.setFont("helvetica","normal");doc.setTextColor(60,80,65);
+      mLines.forEach(l=>{ensure(5);doc.text(l,margin+10,yy);yy+=4;});
+      pLines.forEach(l=>{ensure(5);doc.text(l,margin+12,yy);yy+=4;});
+      if(c.ref){doc.setFont("helvetica","italic");doc.setTextColor(150,120,80);ensure(5);doc.text(c.ref,margin+10,yy+1);yy+=5;}
+      y=yy+6;
+    });
+  }
+
+  footer();
+  const safe=(s)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]/g,"_");
+  const df=state.dateQuiz.toISOString().slice(0,10);
+  doc.save(`${PDF.fname}_${safe(state.nom)}_${safe(state.prenom)}_${df}.pdf`);
+
+  state.pdfGenerated=true;
+}
+</script>
+</body>
+</html>
